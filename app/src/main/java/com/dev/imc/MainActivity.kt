@@ -3,6 +3,7 @@ package com.dev.imc
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etTaille: EditText
     private lateinit var btnCalculer: Button
     private lateinit var tvResultat: TextView
+    private lateinit var imgResultat: ImageView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         etTaille = findViewById(R.id.taille)
         btnCalculer = findViewById(R.id.btnCalculer)
         tvResultat = findViewById(R.id.tvResultat)
+        imgResultat = findViewById(R.id.imgResultat)
+
 
         // 2. Écouter le clic du bouton
         btnCalculer.setOnClickListener {
@@ -37,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private fun calculerIMC() {
-        // 3. Récupérer le texte et le convertir en nombre
         val poidsStr = etPoids.text.toString()
         val tailleStr = etTaille.text.toString()
 
@@ -47,12 +51,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         val poids = poidsStr.toDouble()
-        val taille = tailleStr.toDouble()
+        val tailleCm = tailleStr.toDouble()
+        val tailleM = tailleCm / 100
+        val imc = imc(poids, tailleM)
 
-        // 4. Calcul de l'IMC = poids / (taille * taille)
-        val imc = poids / (taille * taille)
+        when {
+            imc < 18.5 -> {
+                imgResultat.setImageResource(R.drawable.maigre)
+                tvResultat.text = "Votre IMC est: ${"%.2f".format(imc)} (Maigreur)"
+            }
+            imc < 25 -> {
+                imgResultat.setImageResource(R.drawable.normal)
+                tvResultat.text = "Votre IMC est: ${"%.2f".format(imc)} (Poids normal)"
+            }
+            imc < 30 -> {
+                imgResultat.setImageResource(R.drawable.surpoids)
+                tvResultat.text = "Votre IMC est: ${"%.2f".format(imc)} (Surpoids)"
+            }
+            imc < 40 -> {
+                imgResultat.setImageResource(R.drawable.obese)
+                tvResultat.text = "Votre IMC est: ${"%.2f".format(imc)} (Obésité)"
+            }
+            else -> {
+                imgResultat.setImageResource(R.drawable.t_obese)
+                tvResultat.text = "Votre IMC est: ${"%.2f".format(imc)} (Obésité sévère)"
+            }
+        }
+    }
 
-        // 5. Afficher le résultat (formaté à 2 décimales)
-        tvResultat.text = "Votre IMC est : ${"%.2f".format(imc)}"
+    private fun imc(poids: Double, tailleM: Double): Double {
+        return poids / (tailleM * tailleM)
     }
 }
